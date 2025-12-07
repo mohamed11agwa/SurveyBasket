@@ -1,5 +1,10 @@
 
+using FluentValidation;
+using Mapster;
+using MapsterMapper;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using SurveyBasket.Api.Services;
+using System.Reflection;
 
 namespace SurveyBasket.Api
 {
@@ -11,10 +16,7 @@ namespace SurveyBasket.Api
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
-            builder.Services.AddScoped<IPollService,PollService>();
+            builder.Services.AddDependencies();
 
             var app = builder.Build();
 
