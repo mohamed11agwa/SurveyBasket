@@ -2,9 +2,8 @@
 using FluentValidation;
 using Mapster;
 using MapsterMapper;
-using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
-using SurveyBasket.Api.Services;
-using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using SurveyBasket.Api.Persistence;
 
 namespace SurveyBasket.Api
 {
@@ -15,8 +14,7 @@ namespace SurveyBasket.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
-            builder.Services.AddDependencies();
+            builder.Services.AddDependencies(builder.Configuration);
 
             var app = builder.Build();
 
