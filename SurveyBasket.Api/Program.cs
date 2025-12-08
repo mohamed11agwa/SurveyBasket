@@ -1,4 +1,10 @@
 
+using FluentValidation;
+using Mapster;
+using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
+using SurveyBasket.Api.Persistence;
+
 namespace SurveyBasket.Api
 {
     public class Program
@@ -8,10 +14,7 @@ namespace SurveyBasket.Api
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
-            builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+            builder.Services.AddDependencies(builder.Configuration);
 
             var app = builder.Build();
 
