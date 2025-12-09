@@ -3,6 +3,7 @@ using FluentValidation;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using SurveyBasket.Api.Entities;
 using SurveyBasket.Api.Persistence;
 
 namespace SurveyBasket.Api
@@ -16,6 +17,8 @@ namespace SurveyBasket.Api
             // Add services to the container.
             builder.Services.AddDependencies(builder.Configuration);
 
+            //builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -29,7 +32,7 @@ namespace SurveyBasket.Api
 
             app.UseAuthorization();
 
-
+            //app.MapIdentityApi<ApplicationUser>();
             app.MapControllers();
 
             app.Run();

@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using SurveyBasket.Api.Contracts.Requests;
-using SurveyBasket.Api.Contracts.Responses;
+using SurveyBasket.Api.Contracts.Polls;
 using SurveyBasket.Api.Entities;
 using SurveyBasket.Api.Services;
 using System.Threading;
@@ -21,7 +21,7 @@ namespace SurveyBasket.Api.Controllers
             _pollService = pollService;
         }
 
-
+        [Authorize]
         [HttpGet("")]
         public async Task<IActionResult> GetAll()
         {
