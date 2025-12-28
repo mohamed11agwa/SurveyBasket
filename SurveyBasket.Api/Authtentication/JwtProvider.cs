@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using SurveyBasket.Api.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -6,8 +7,10 @@ using System.Text;
 
 namespace SurveyBasket.Api.Authtentication
 {
-    public class JwtProvider : IJwtProvider
+    public class JwtProvider(IOptions<JwtOptions> jwtOptions) : IJwtProvider
     {
+        private readonly JwtOptions _jwtOptions = jwtOptions.Value;
+
         public (string token, int expiresIn) GenerateToken(ApplicationUser user)
         {
             Claim[] claims = [
@@ -18,21 +21,20 @@ namespace SurveyBasket.Api.Authtentication
                 new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
            ];
-            var symmertricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("WYlOvfY6fLwGSShPVnlQveCRfBho5CRp"));
+            var symmertricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
             var signingCredentials = new SigningCredentials(symmertricSecurityKey, SecurityAlgorithms.HmacSha256);
 
-            var expiresIn = 30; // Token expiration time in minutes
 
-            var expirationDate = DateTime.UtcNow.AddMinutes(expiresIn);
+            var expirationDate = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpireMinutes);
 
             var token = new JwtSecurityToken(
-                issuer: "SurveyBasketApp",
-                audience: "SurveyBasketApp Users",
+                issuer: _jwtOptions.Issuer,
+                audience: _jwtOptions.Audience,
                 claims: claims,
                 expires: expirationDate,
                 signingCredentials: signingCredentials
                 );
-            return (token: new JwtSecurityTokenHandler().WriteToken(token), expiresIn: expiresIn);
+            return (token: new JwtSecurityTokenHandler().WriteToken(token), expiresIn: _jwtOptions.ExpireMinutes * 60);
 
         }
     }

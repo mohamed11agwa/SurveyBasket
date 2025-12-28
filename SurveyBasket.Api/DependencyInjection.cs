@@ -30,7 +30,7 @@ namespace SurveyBasket.Api
 
             services.AddControllers();
             
-            services.AddAuthConfig();
+            services.AddAuthConfig(configuration);
             services.AddSwaggerServices();
 
             //Add Mapster Configurations
@@ -64,11 +64,21 @@ namespace SurveyBasket.Api
             services.AddFluentValidationAutoValidation().AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             return services;
         }
-        private static IServiceCollection AddAuthConfig(this IServiceCollection services)
+        private static IServiceCollection AddAuthConfig(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<IJwtProvider, JwtProvider>();
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddSingleton<IJwtProvider, JwtProvider>();
+            //services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+            services.AddOptions<JwtOptions>()
+                .Bind(configuration.GetSection(JwtOptions.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            // Bind JwtOptions for direct use
+            var jwtOptions = configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -83,13 +93,15 @@ namespace SurveyBasket.Api
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("WYlOvfY6fLwGSShPVnlQveCRfBho5CRp")),
-                    ValidIssuer = "SurveyBasketApp",
-                    ValidAudience = "SurveyBasketApp Users",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions?.Key!)),
+                    ValidIssuer = jwtOptions?.Issuer,
+                    ValidAudience = jwtOptions?.Audience,
                 };
             });
+          
             return services;
         }
+        
 
 
     }

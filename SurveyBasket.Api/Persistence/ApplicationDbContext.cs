@@ -14,6 +14,7 @@ namespace SurveyBasket.Api.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            
             //modelBuilder.ApplyConfiguration(new PollConfiguration());
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             base.OnModelCreating(modelBuilder);
