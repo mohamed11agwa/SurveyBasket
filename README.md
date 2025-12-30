@@ -1,7 +1,7 @@
 📝 Survey Management System
-
-A RESTful Survey Management System built with ASP.NET Core Web API, enabling: Survey creation and management, Question management, Response collection, Secure authentication using JWT
 --------------------------------------------------------------
+A RESTful Survey Management System built with ASP.NET Core Web API, enabling: Survey creation and management, Question management, Response collection, Secure authentication using JWT
+
 🔐 Authentication & Token Strategy
 This system uses Access Tokens and Refresh Tokens to ensure security and a smooth user experience.
 
