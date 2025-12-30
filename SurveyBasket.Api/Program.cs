@@ -30,7 +30,7 @@ namespace SurveyBasket.Api
 
             app.UseHttpsRedirection();
 
-            app.UseCors("MyPolicy");
+            app.UseCors();
             app.UseAuthorization();
 
             //app.MapIdentityApi<ApplicationUser>();

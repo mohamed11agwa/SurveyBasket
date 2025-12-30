@@ -30,7 +30,18 @@ namespace SurveyBasket.Api
 
             services.AddControllers();
 
+            var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>();
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                    builder.AllowAnyMethod()
+                           .AllowAnyHeader()
+                           .WithOrigins(allowedOrigins!)
+                );
+            });
+
             services.AddAuthConfig(configuration);
+
             services.AddSwaggerServices();
 
             //Add Mapster Configurations
