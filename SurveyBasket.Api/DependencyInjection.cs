@@ -29,7 +29,7 @@ namespace SurveyBasket.Api
                options.UseSqlServer(connectionString));
 
             services.AddControllers();
-            
+
             services.AddAuthConfig(configuration);
             services.AddSwaggerServices();
 

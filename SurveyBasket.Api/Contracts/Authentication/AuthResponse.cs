@@ -6,6 +6,8 @@
         String FirstName,
         String LastName,
         String Token,
-        int ExpiresIn
+        int ExpiresIn,
+        string RefreshToken,
+        DateTime RefreshTokenExpiration
         );
 }
