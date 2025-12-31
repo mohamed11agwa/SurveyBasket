@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using OneOf;
+using SurveyBasket.Api.Abstractions;
 using SurveyBasket.Api.Authtentication;
 using SurveyBasket.Api.Contracts.Authentication;
 using SurveyBasket.Api.Entities;
+using SurveyBasket.Api.Errors;
 using System.Security.Cryptography;
 
 namespace SurveyBasket.Api.Services
@@ -12,17 +15,19 @@ namespace SurveyBasket.Api.Services
         private readonly IJwtProvider _jwtProvider = jwtProvider;
         private readonly int _refreshTokenExpirationDays = 14;
 
-        public async Task<AuthResponse?> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
+        public async Task<OneOf<AuthResponse, Error>> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
         {
             //Check USER
             var user = await _userManager.FindByEmailAsync(email);
             if (user is null)
-                return null;
+                //return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
+                return UserErrors.InvalidCredentials;
 
             //Check PASSWORD
             var isValidPassword = await _userManager.CheckPasswordAsync(user, password);
             if (!isValidPassword)
-                return null;
+                //return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
+                return UserErrors.InvalidCredentials;
 
             //Generate jwt TOKEN
             var (token, expiresIn) = _jwtProvider.GenerateToken(user);
@@ -38,8 +43,10 @@ namespace SurveyBasket.Api.Services
             await _userManager.UpdateAsync(user);
 
             //Generate Refresh token and return it with jwt token during login
-            return new AuthResponse(user.Id, user.Email, user.FirstName, user.LastName, token, expiresIn, refreshToken, refreshTokenExpiration);
-            
+            var response = new AuthResponse(user.Id, user.Email, user.FirstName, user.LastName, token, expiresIn, refreshToken, refreshTokenExpiration);
+            //return Result.Success(response);
+            return response;
+
         }
 
 
