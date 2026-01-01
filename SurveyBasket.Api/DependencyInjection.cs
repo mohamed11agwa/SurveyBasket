@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using SurveyBasket.Api.Authtentication;
 using SurveyBasket.Api.Entities;
+using SurveyBasket.Api.Errors;
 using SurveyBasket.Api.Persistence;
 using SurveyBasket.Api.Services;
 using System.Collections;
@@ -51,6 +52,10 @@ namespace SurveyBasket.Api
 
             services.AddScoped<IPollService, PollService>();
             services.AddScoped<IAuthService, AuthService>();
+            // Add Global Exception Handler
+            services.AddExceptionHandler<GlobalExceptionHandler>();
+            services.AddProblemDetails();
+
 
             return services;
         }

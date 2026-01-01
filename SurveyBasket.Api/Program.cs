@@ -34,7 +34,11 @@ namespace SurveyBasket.Api
             app.UseAuthorization();
 
             //app.MapIdentityApi<ApplicationUser>();
+
             app.MapControllers();
+
+            //app.UseMiddleware<Middleware.ExceptionHandlingMiddleware>();
+            app.UseExceptionHandler();
 
             app.Run();
         }
