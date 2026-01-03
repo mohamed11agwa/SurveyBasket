@@ -23,12 +23,20 @@ namespace SurveyBasket.Api.Controllers
             _pollService = pollService;
         }
 
+
         [HttpGet("")]
         public async Task<IActionResult> GetAll()
         {
             var polls = await _pollService.GetAllAsync();
-            var response = polls.Adapt<IEnumerable<PollResponse>>();
-            return Ok(response);
+            return Ok(polls);
+        }
+
+
+        [HttpGet("current")]
+        public async Task<IActionResult> GetCurrent()
+        {
+            var polls =  await _pollService.GetCurrentAsync();
+            return Ok(polls);
         }
 
 
