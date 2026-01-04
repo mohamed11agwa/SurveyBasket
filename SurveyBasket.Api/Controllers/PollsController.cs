@@ -3,10 +3,11 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using SurveyBasket.Api.Abstractions;
 using SurveyBasket.Api.Contracts.Polls;
 using SurveyBasket.Api.Entities;
+using SurveyBasket.Api.Errors;
 using SurveyBasket.Api.Services;
-using System.Threading;
 
 namespace SurveyBasket.Api.Controllers
 {
@@ -22,12 +23,20 @@ namespace SurveyBasket.Api.Controllers
             _pollService = pollService;
         }
 
+
         [HttpGet("")]
         public async Task<IActionResult> GetAll()
         {
             var polls = await _pollService.GetAllAsync();
-            var response = polls.Adapt<IEnumerable<PollResponse>>();
-            return Ok(response);
+            return Ok(polls);
+        }
+
+
+        [HttpGet("current")]
+        public async Task<IActionResult> GetCurrent()
+        {
+            var polls =  await _pollService.GetCurrentAsync();
+            return Ok(polls);
         }
 
 
@@ -43,26 +52,30 @@ namespace SurveyBasket.Api.Controllers
             
             return result.IsSuccess
                 ? Ok(result.Value) 
-                : Problem(statusCode: StatusCodes.Status404NotFound, title:result.Error.Code, detail:result.Error.description);
+                //: Problem(statusCode: StatusCodes.Status404NotFound, title:result.Error.Code, detail:result.Error.Description);
+                  : result.ToProblem();
         }
 
 
-        //[HttpPost("")]
-        //public async Task<IActionResult> Add([FromBody]PollRequest request, CancellationToken cancellationToken)// [FromServices] IValidator<CreatePollRequest> validator)
-        //{
-        //    //var validationResult  = validator.Validate(request);
-        //    //if(!validationResult.IsValid)
-        //    //{
-        //    //    var modelState = new ModelStateDictionary();
-        //    //    validationResult.Errors.ForEach(error =>
-        //    //    {
-        //    //        modelState.AddModelError(error.PropertyName, error.ErrorMessage);
-        //    //    });
-        //    //    return ValidationProblem(modelState);
-        //    //}
-        //    var newPoll =await _pollService.AddAsync(request.Adapt<Poll>(), cancellationToken);
-        //    return CreatedAtAction(nameof(GetById), new { id = newPoll.Id }, newPoll.Adapt<PollResponse>());
-        //}
+        [HttpPost("")]
+        public async Task<IActionResult> Add([FromBody] PollRequest request, CancellationToken cancellationToken)// [FromServices] IValidator<CreatePollRequest> validator)
+        {
+            //var validationResult  = validator.Validate(request);
+            //if(!validationResult.IsValid)
+            //{
+            //    var modelState = new ModelStateDictionary();
+            //    validationResult.Errors.ForEach(error =>
+            //    {
+            //        modelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            //    });
+            //    return ValidationProblem(modelState);
+            //}
+            var result = await _pollService.AddAsync(request, cancellationToken);
+            return result.IsSuccess
+                ? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value)
+                : result.ToProblem();
+            
+        }
 
 
         [HttpPut("{id}")]
@@ -73,26 +86,42 @@ namespace SurveyBasket.Api.Controllers
             //if (!isUpdated)
             //    return NotFound();
             //return NoContent();
-            return result.IsSuccess ? NoContent() : NotFound(result.Error);
+            //return result.IsSuccess ? NoContent() : NotFound(result.Error);
+
+            //return result.IsSuccess ?
+            //    NoContent() 
+            //    //: Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.Code, detail: result.Error.Description);
+            //    : result.ToProblem(StatusCodes.Status404NotFound);
+
+            return result.IsSuccess ? NoContent() : result.ToProblem();
+                
         }
 
 
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken)
-        //{
-        //    var isDeleted = await _pollService.DeleteAsync(id, cancellationToken);
-        //    if (!isDeleted)
-        //        return NotFound();
-        //    return NoContent();
-        //}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken)
+        {
+            var result = await _pollService.DeleteAsync(id, cancellationToken);
+            //if (!isDeleted)
+            //    return NotFound();
+            //return NoContent();
+        return result.IsSuccess
+                ? NoContent()
+                //: Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.Code, detail: result.Error.Description);
+                : result.ToProblem();
+        }
 
-        //[HttpPut("{id}/togglePublish")]
-        //public async Task<IActionResult> TogglePublish([FromRoute] int id, CancellationToken cancellationToken)
-        //{
-        //    var isUpdated = await _pollService.TogglePublishStatusAsync(id, cancellationToken);
-        //    if (!isUpdated)
-        //        return NotFound();
-        //    return NoContent();
-        //}
+        [HttpPut("{id}/togglePublish")]
+        public async Task<IActionResult> TogglePublish([FromRoute] int id, CancellationToken cancellationToken)
+        {
+            var result = await _pollService.TogglePublishStatusAsync(id, cancellationToken);
+            //if (!isUpdated)
+            //    return NotFound();
+            //return NoContent();
+            return result.IsSuccess 
+                ? NoContent()
+                //: Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.Code, detail: result.Error.Description);
+                : result.ToProblem();
+        }
     }
 }
