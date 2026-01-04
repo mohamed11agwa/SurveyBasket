@@ -20,7 +20,7 @@ namespace SurveyBasket.Api.Controllers
             var result = await _questionService.GetAllAsync(pollId, cancellationToken);
             if (result.IsSuccess)
                 return Ok(result.Value);
-            return result.ToProblem(StatusCodes.Status404NotFound);
+            return result.ToProblem();
         }
 
 
@@ -30,7 +30,7 @@ namespace SurveyBasket.Api.Controllers
             var result = await _questionService.GetByIdAsync(pollId, id, cancellationToken);
             if (result.IsSuccess)
                 return Ok(result.Value);
-            return result.ToProblem(StatusCodes.Status404NotFound);
+            return result.ToProblem();
         }
 
 
@@ -38,12 +38,11 @@ namespace SurveyBasket.Api.Controllers
         public async Task<IActionResult> Add([FromRoute] int pollId, [FromBody] QuestionRequest request, CancellationToken cancellationToken)
         {
             var result = await _questionService.AddAsync(pollId, request, cancellationToken);
-            if (result.IsSuccess)
-                return CreatedAtAction(nameof(GetById), new { pollId = pollId, id = result.Value.Id }, result.Value);
+            return result.IsSuccess 
+                ? CreatedAtAction(nameof(GetById), new { pollId = pollId, id = result.Value.Id }, result.Value)
+                : result.ToProblem();
 
-            return result.Error.Equals(QuestionErrors.DuplicatedQuestionContent)
-                ? result.ToProblem(StatusCodes.Status409Conflict)
-                : result.ToProblem(StatusCodes.Status404NotFound);
+
 
         }
 
@@ -51,11 +50,12 @@ namespace SurveyBasket.Api.Controllers
         public async Task<IActionResult> Update([FromRoute] int pollId, [FromRoute]int id, [FromBody] QuestionRequest request, CancellationToken cancellationToken)
         {
             var result = await _questionService.UpdateAsync(pollId, id, request, cancellationToken);
-            if (result.IsSuccess)
-                return NoContent();
-            return result.Error.Equals(QuestionErrors.DuplicatedQuestionContent)
-                ? result.ToProblem(StatusCodes.Status409Conflict)
-                : result.ToProblem(StatusCodes.Status404NotFound);
+            //if (result.IsSuccess)
+            //    return NoContent();
+            //return result.Error.Equals(QuestionErrors.DuplicatedQuestionContent)
+            //    ? result.ToProblem(StatusCodes.Status409Conflict)
+            //    : result.ToProblem(StatusCodes.Status404NotFound);
+            return result.IsSuccess ? NoContent() : result.ToProblem();
         }
 
 
@@ -65,7 +65,7 @@ namespace SurveyBasket.Api.Controllers
             var result = await _questionService.ToggleStatusAsync(pollId, id, cancellationToken);
             if (result.IsSuccess)
                 return NoContent();
-            return result.ToProblem(StatusCodes.Status404NotFound);
+            return result.ToProblem();
         }
 
 

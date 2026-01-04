@@ -23,11 +23,13 @@ namespace SurveyBasket.Api.Controllers
         {
             var userId = User.GetUserId();
             var result = await _questionService.GetAvailableAsync(pollId, userId!, cancellationToken);
-            if (result.IsSuccess)
-                return Ok(result.Value);
-            return result.Error.Equals(VoteErrors.DuplicatedVote)
-                ? result.ToProblem(StatusCodes.Status409Conflict)
-                : result.ToProblem(StatusCodes.Status404NotFound);
+            //if (result.IsSuccess)
+            //    return Ok(result.Value);
+            //return result.Error.Equals(VoteErrors.DuplicatedVote)
+            //    ? result.ToProblem(StatusCodes.Status409Conflict)
+            //    : result.ToProblem(StatusCodes.Status404NotFound);
+            return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+           
         }
 
 
@@ -36,12 +38,8 @@ namespace SurveyBasket.Api.Controllers
         {
             var userId = User.GetUserId();
             var result = await _voteService.AddAsync(pollId, userId!, request, cancellationToken);
-            if (result.IsSuccess)
-                return Created();
-
-            return result.Error.Equals(VoteErrors.DuplicatedVote)
-                ? result.ToProblem(StatusCodes.Status409Conflict)
-                : result.ToProblem(StatusCodes.Status400BadRequest);
+            return result.IsSuccess ? Created() : result.ToProblem();
+                
         }
 
 

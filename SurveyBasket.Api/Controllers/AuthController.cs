@@ -32,7 +32,7 @@ namespace SurveyBasket.Api.Controllers
 
             return authResult.IsSuccess
                 ? Ok(authResult.Value)
-                : authResult.ToProblem(StatusCodes.Status400BadRequest);
+                : authResult.ToProblem();
         }
 
 
@@ -46,7 +46,7 @@ namespace SurveyBasket.Api.Controllers
             return authResult.IsSuccess
                 ? Ok(authResult.Value)
                 //: Problem(statusCode: StatusCodes.Status400BadRequest, title: authResult.Error.Code, detail: authResult.Error.Description);
-                : authResult.ToProblem(StatusCodes.Status400BadRequest);
+                : authResult.ToProblem();
 
         }
 
@@ -63,7 +63,7 @@ namespace SurveyBasket.Api.Controllers
             return result.IsSuccess
                 ? Ok()
                 //: Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.Code, detail: result.Error.Description);
-                : result.ToProblem(StatusCodes.Status400BadRequest);
+                : result.ToProblem();
         }
 
 
