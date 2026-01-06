@@ -1,11 +1,4 @@
-
-using FluentValidation;
-using Mapster;
-using MapsterMapper;
-using Microsoft.EntityFrameworkCore;
-using SurveyBasket.Api.Entities;
-using SurveyBasket.Api.Persistence;
-
+using Serilog;
 namespace SurveyBasket.Api
 {
     public class Program
@@ -17,8 +10,29 @@ namespace SurveyBasket.Api
             // Add services to the container.
             builder.Services.AddDependencies(builder.Configuration);
 
+            //builder.Services.AddOutputCache(options =>
+            //{
+            //    options.AddPolicy("Polls", x =>
+            //        x.Cache()
+            //        .Expire(TimeSpan.FromSeconds(120))
+            //        .Tag("availableQuestions")  
+            //    );
+            //});
+
+            builder.Services.AddDistributedMemoryCache();
+
             //builder.Services.AddIdentityApiEndpoints<ApplicationUser>()
             //    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+
+            builder.Host.UseSerilog((context, configuration) =>
+            { 
+                //configuration.MinimumLevel.Information().WriteTo.Console();
+
+                //read from appsettings.json
+                configuration.ReadFrom.Configuration(context.Configuration);
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -27,6 +41,7 @@ namespace SurveyBasket.Api
                 app.MapOpenApi();
                 app.UseSwaggerUI(opt => opt.SwaggerEndpoint("/openapi/v1.json", "SurveyBasket.v1"));    
             }
+            app.UseSerilogRequestLogging();
 
             app.UseHttpsRedirection();
 

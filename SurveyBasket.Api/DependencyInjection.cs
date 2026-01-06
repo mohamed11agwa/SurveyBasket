@@ -30,6 +30,7 @@ namespace SurveyBasket.Api
                options.UseSqlServer(connectionString));
 
             services.AddControllers();
+            services.AddHybridCache();
 
             var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>();
             services.AddCors(options =>
@@ -55,10 +56,12 @@ namespace SurveyBasket.Api
             services.AddScoped<IQuestionService, QuestionService>();
             services.AddScoped<IVoteService, VoteService>();
             services.AddScoped<IResultService, ResultService>();
+            services.AddScoped<ICacheService, CacheService>();
+
             // Add Global Exception Handler
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();
-
+            
 
             return services;
         }
