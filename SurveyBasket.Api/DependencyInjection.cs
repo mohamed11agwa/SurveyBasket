@@ -3,8 +3,8 @@ using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using SurveyBasket.Api.Authtentication;
@@ -12,7 +12,7 @@ using SurveyBasket.Api.Entities;
 using SurveyBasket.Api.Errors;
 using SurveyBasket.Api.Persistence;
 using SurveyBasket.Api.Services;
-using System.Collections;
+using SurveyBasket.Api.Settings;
 using System.Reflection;
 using System.Text;
 
@@ -30,6 +30,7 @@ namespace SurveyBasket.Api
                options.UseSqlServer(connectionString));
 
             services.AddControllers();
+
             services.AddHybridCache();
 
             var allowedOrigins = configuration.GetSection("AllowedOrigins").Get<string[]>();
@@ -57,12 +58,15 @@ namespace SurveyBasket.Api
             services.AddScoped<IVoteService, VoteService>();
             services.AddScoped<IResultService, ResultService>();
             services.AddScoped<ICacheService, CacheService>();
+            services.AddScoped<IEmailSender, EmailService>();
 
             // Add Global Exception Handler
             services.AddExceptionHandler<GlobalExceptionHandler>();
             services.AddProblemDetails();
-            
 
+            
+            services.Configure<MailSettings>(configuration.GetSection(nameof(MailSettings)));
+            services.AddHttpContextAccessor();
             return services;
         }
 
@@ -89,7 +93,8 @@ namespace SurveyBasket.Api
         private static IServiceCollection AddAuthConfig(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             services.AddSingleton<IJwtProvider, JwtProvider>();
             //services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
@@ -120,7 +125,14 @@ namespace SurveyBasket.Api
                     ValidAudience = jwtOptions?.Audience,
                 };
             });
-          
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequiredLength = 8;
+                options.SignIn.RequireConfirmedEmail = true;
+                options.User.RequireUniqueEmail = true;
+                
+            });
             return services;
         }
         

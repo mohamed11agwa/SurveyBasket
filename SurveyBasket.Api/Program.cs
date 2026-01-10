@@ -46,6 +46,7 @@ namespace SurveyBasket.Api
             app.UseHttpsRedirection();
 
             app.UseCors();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             //app.MapIdentityApi<ApplicationUser>();
