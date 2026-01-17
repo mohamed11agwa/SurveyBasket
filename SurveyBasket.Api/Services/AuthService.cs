@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using Hangfire;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
@@ -243,8 +244,9 @@ namespace SurveyBasket.Api.Services
                         { "{{action_url}}", $"{origin}/auth/emailConfirmation?userId={user.Id}&code={code}" }
                 }
             );
+            BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(user.Email!, "SurveyBasket: Email Confirmation", emailBody));
 
-            await _emailSender.SendEmailAsync(user.Email!, "SurveyBasket: Email Confirmation", emailBody);
+            await Task.CompletedTask;
         }
 
         private static string GenerateRefreshToken()

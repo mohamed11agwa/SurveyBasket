@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Hangfire;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -52,6 +53,9 @@ namespace SurveyBasket.Api
 
             services.AddFluentValidationConfig();
 
+            // Add Hangfire
+            services.AddBackgroundJobsConfig(configuration);
+
             services.AddScoped<IPollService, PollService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IQuestionService, QuestionService>();
@@ -59,6 +63,7 @@ namespace SurveyBasket.Api
             services.AddScoped<IResultService, ResultService>();
             services.AddScoped<ICacheService, CacheService>();
             services.AddScoped<IEmailSender, EmailService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             // Add Global Exception Handler
             services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -135,7 +140,22 @@ namespace SurveyBasket.Api
             });
             return services;
         }
-        
+
+
+
+
+        private static IServiceCollection AddBackgroundJobsConfig(this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            services.AddHangfire(config => config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(configuration.GetConnectionString("HangfireConnection")));
+
+            services.AddHangfireServer();
+            return services;
+        }
 
 
     }
