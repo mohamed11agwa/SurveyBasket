@@ -64,6 +64,7 @@ namespace SurveyBasket.Api
             services.AddScoped<ICacheService, CacheService>();
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IUserService, UserService>();
 
             // Add Global Exception Handler
             services.AddExceptionHandler<GlobalExceptionHandler>();

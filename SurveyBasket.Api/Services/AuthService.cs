@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using OneOf;
 using SurveyBasket.Abstractions.Consts;
 using SurveyBasket.Api.Abstractions;
@@ -232,6 +233,48 @@ namespace SurveyBasket.Api.Services
         }
 
 
+        public async Task<Result> SendResetPasswordCodeAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if(user is null)
+                return Result.Success();
+            if (!user.EmailConfirmed)
+                return Result.Failure(UserErrors.EmailNotConfirmed);
+
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+            _logger.LogInformation("Reset code: {code}", code);
+
+            //TODO: Send Eamil
+            await SendResetPasswordEmail(user, code);
+            return Result.Success();
+        }
+
+
+
+        public async Task<Result> ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user is null || !user.EmailConfirmed)
+                return Result.Failure(UserErrors.InvalidCode);
+
+            IdentityResult result;
+            try
+            {
+                var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Code));
+                result = await _userManager.ResetPasswordAsync(user, code, request.NewPassword);
+            }catch (FormatException )
+            {
+                result = IdentityResult.Failed(_userManager.ErrorDescriber.InvalidToken());
+            }
+            if(result.Succeeded)
+                return Result.Success();
+            var error = result.Errors.First();
+            return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status401Unauthorized));
+        }
+
+
 
         private async Task SendEmailConfirmation(ApplicationUser user, string code)
         {
@@ -248,6 +291,25 @@ namespace SurveyBasket.Api.Services
 
             await Task.CompletedTask;
         }
+
+
+        private async Task SendResetPasswordEmail(ApplicationUser user, string code)
+        {
+            var origin = _httpContextAccessor.HttpContext?.Request.Headers.Origin;
+            //TODO: Send Email
+            var emailBody = EmailBodyBuilder.GenerateEmailBody("ForgetPassword",
+                new Dictionary<string, string>
+                {
+                        { "{{name}}", user.FirstName },
+                        { "{{action_url}}", $"{origin}/auth/forgetPassword?userId={user.Email}&code={code}" }
+                }
+            );
+            BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(user.Email!, "SurveyBasket: Change Password", emailBody));
+
+            await Task.CompletedTask;
+        }
+
+
 
         private static string GenerateRefreshToken()
         {
