@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using SurveyBasket.Api.Abstractions;
 using SurveyBasket.Api.Contracts.Votes;
 using SurveyBasket.Api.Errors;
@@ -12,16 +13,19 @@ namespace SurveyBasket.Api.Controllers
 {
     [Route("/api/polls/{pollId}/vote")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class VotesController(IQuestionService questionService, IVoteService voteService) : ControllerBase
     {
         private readonly IQuestionService _questionService = questionService;
         private readonly IVoteService _voteService = voteService;
 
         [HttpGet("")]
+        //[OutputCache(PolicyName = "Polls")]
+        //Response Cache works with client side caching only. Works Only For Endpoints with Response StatusCode 200
+        ////For server side caching use OutputCache attribute.
         public async Task<IActionResult> Start([FromRoute] int pollId, CancellationToken cancellationToken)
         {
-            var userId = User.GetUserId();
+            var userId = "2ee42c47-d708-4233-a9e1-1b13915265fd"; //User.GetUserId();
             var result = await _questionService.GetAvailableAsync(pollId, userId!, cancellationToken);
             //if (result.IsSuccess)
             //    return Ok(result.Value);
