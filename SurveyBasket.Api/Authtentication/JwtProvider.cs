@@ -4,6 +4,7 @@ using SurveyBasket.Api.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace SurveyBasket.Api.Authtentication
 {
@@ -11,7 +12,8 @@ namespace SurveyBasket.Api.Authtentication
     {
         private readonly JwtOptions _jwtOptions = jwtOptions.Value;
 
-        public (string token, int expiresIn) GenerateToken(ApplicationUser user)
+        public (string token, int expiresIn) GenerateToken(ApplicationUser user, IEnumerable<string> roles,
+            IEnumerable<string> permissions)
         {
             Claim[] claims = [
 
@@ -19,8 +21,11 @@ namespace SurveyBasket.Api.Authtentication
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
                 new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
                 new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(nameof(roles), JsonSerializer.Serialize(roles), JsonClaimValueTypes.JsonArray),
+                new Claim(nameof(permissions), JsonSerializer.Serialize(permissions), JsonClaimValueTypes.JsonArray)
            ];
+
             var symmertricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
             var signingCredentials = new SigningCredentials(symmertricSecurityKey, SecurityAlgorithms.HmacSha256);
 

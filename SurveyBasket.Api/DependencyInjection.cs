@@ -3,12 +3,14 @@ using Hangfire;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using SurveyBasket.Api.Authtentication;
+using SurveyBasket.Api.Authtentication.Filters;
 using SurveyBasket.Api.Entities;
 using SurveyBasket.Api.Errors;
 using SurveyBasket.Api.Persistence;
@@ -65,6 +67,7 @@ namespace SurveyBasket.Api
             services.AddScoped<IEmailSender, EmailService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRoleService, RoleService>();
 
             // Add Global Exception Handler
             services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -98,9 +101,12 @@ namespace SurveyBasket.Api
         }
         private static IServiceCollection AddAuthConfig(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
+            services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
             services.AddSingleton<IJwtProvider, JwtProvider>();
             //services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));

@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SurveyBasket.Abstractions.Consts;
 using SurveyBasket.Api.Entities;
 
 namespace SurveyBasket.Api.Persistence.EntitiesConfigurations
@@ -14,6 +16,23 @@ namespace SurveyBasket.Api.Persistence.EntitiesConfigurations
                 .HasForeignKey("UserId");
             builder.Property(x => x.FirstName).HasMaxLength(100);
             builder.Property(x => x.LastName).HasMaxLength(100);
+
+            //Default Data
+
+            builder.HasData(new ApplicationUser
+            {
+                Id = DefaultUsers.AdminId,
+                FirstName = "Survey Basket",
+                LastName = "Admin",
+                UserName = DefaultUsers.AdminEmail,
+                NormalizedUserName = DefaultUsers.AdminEmail.ToUpper(),
+                Email = DefaultUsers.AdminEmail,
+                NormalizedEmail = DefaultUsers.AdminEmail.ToUpper(),
+                SecurityStamp = DefaultUsers.AdminSecurityStamp,
+                ConcurrencyStamp = DefaultUsers.AdminConcurrencyStamp,
+                EmailConfirmed = true,
+                PasswordHash = DefaultUsers.AdminPasswordHash
+            });
         }
     }
 }
