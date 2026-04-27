@@ -11,7 +11,7 @@ A RESTful Survey Management System built with ASP.NET Core Web API, enabling: Su
 - Performance optimization using Mapster, FluentValidation, Hybrid Cache, and rate limiting.
 - Background processing and system monitoring using Hangfire, Serilog, health checks, and API versioning.
 
-
+--------------------------------------------------------------
 🔐 Authentication & Token Strategy
 This system uses Access Tokens and Refresh Tokens to ensure security and a smooth user experience.
 
