@@ -2,6 +2,16 @@
 --------------------------------------------------------------
 A RESTful Survey Management System built with ASP.NET Core Web API, enabling: Survey creation and management, Question management, Response collection, Secure authentication using JWT
 
+
+## Key Highlights:-
+
+- Secure authentication & authorization using JWT with role-based access control.
+- Survey and poll management with user participation and response tracking.
+- Centralized exception handling and Result Pattern for consistent API responses.
+- Performance optimization using Mapster, FluentValidation, Hybrid Cache, and rate limiting.
+- Background processing and system monitoring using Hangfire, Serilog, health checks, and API versioning.
+
+
 🔐 Authentication & Token Strategy
 This system uses Access Tokens and Refresh Tokens to ensure security and a smooth user experience.
 
